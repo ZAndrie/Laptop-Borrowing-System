@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+enum Role {
+  LIBRARIAN
+  STAFF
+}
+
+enum LaptopStatus {
+  AVAILABLE
+  BORROWED
+  MAINTENANCE
+  LOST
+  DAMAGED
+}
+
+enum LaptopCondition {
+  GOOD
+  MINOR_DAMAGE
+  MAJOR_DAMAGE
+  MISSING_CHARGER
+  OTHER
+}
+
+enum TransactionStatus {
+  BORROWED
+  RETURNED
+  OVERDUE
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      Role     @default(STAFF)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions BorrowTransaction[]
+  activityLogs ActivityLog[]
+}
+
+model Borrower {
+  id            String   @id @default(uuid())
+  studentId     String   @unique
+  firstName     String
+  lastName      String
+  middleName    String?
+  course        String
+  yearLevel     String
+  college       String
+  email         String?
+  contactNumber String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  transactions BorrowTransaction[]
+}
+
+model Laptop {
+  id               String          @id @default(uuid())
+  assetNumber      String          @unique
+  serialNumber     String          @unique
+  brand            String
+  model            String
+  processor        String
+  ram              String
+  storage          String
+  operatingSystem  String
+  purchaseDate     DateTime
+  condition        LaptopCondition @default(GOOD)
+  status           LaptopStatus    @default(AVAILABLE)
+  location         String
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  transactions BorrowTransaction[]
+}
+
+model BorrowTransaction {
+  id                 String            @id @default(uuid())
+  transactionNumber  String            @unique
+  borrowerId         String
+  laptopId           String
+  userId             String // Staff who processed the borrow
+  borrowDate         DateTime          @default(now())
+  dueDate            DateTime
+  returnDate         DateTime?
+  status             TransactionStatus @default(BORROWED)
+  remarks            String?
+  returnCondition    LaptopCondition?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  borrower Borrower @relation(fields: [borrowerId], references: [id])
+  laptop   Laptop   @relation(fields: [laptopId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  action      String
+  description String
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
