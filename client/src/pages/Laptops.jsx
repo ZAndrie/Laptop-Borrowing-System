@@ -50,11 +50,8 @@ const Laptops = () => {
 
   const openEditModal = (laptop) => {
     setEditingLaptop(laptop);
-    // Format date for the input field
+    // Format data if needed
     const formattedData = { ...laptop };
-    if (formattedData.purchaseDate) {
-      formattedData.purchaseDate = new Date(formattedData.purchaseDate).toISOString().split('T')[0];
-    }
     reset(formattedData);
     setShowModal(true);
   };
@@ -123,7 +120,7 @@ const Laptops = () => {
             <tr>
               <th className="px-6 py-4 font-medium">Asset No.</th>
               <th className="px-6 py-4 font-medium">Device</th>
-              <th className="px-6 py-4 font-medium">Specs</th>
+              <th className="px-6 py-4 font-medium">OS</th>
               <th className="px-6 py-4 font-medium">Status</th>
               {isLibrarian && <th className="px-6 py-4 font-medium text-right">Actions</th>}
             </tr>
@@ -133,12 +130,11 @@ const Laptops = () => {
               <tr key={laptop.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 font-medium text-slate-800">{laptop.assetNumber}</td>
                 <td className="px-6 py-4">
-                  <div className="font-medium text-slate-800">{laptop.brand} {laptop.model}</div>
-                  <div className="text-xs text-slate-500">SN: {laptop.serialNumber}</div>
+                  <div className="font-medium text-slate-800">{laptop.name}</div>
+                  <div className="text-xs text-slate-500">SN: {laptop.serialNumber || 'N/A'} • {laptop.brand || 'No Brand'} {laptop.model || ''}</div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-slate-700">{laptop.processor} • {laptop.ram}</div>
-                  <div className="text-xs text-slate-500">{laptop.storage}</div>
+                  <div className="text-slate-700">{laptop.operatingSystem || 'N/A'}</div>
                 </td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
@@ -150,9 +146,13 @@ const Laptops = () => {
                   </span>
                 </td>
                 {isLibrarian && (
-                  <td className="px-6 py-4 flex items-center justify-end space-x-3 text-slate-400">
-                    <button onClick={() => openEditModal(laptop)} title="Edit Laptop" className="hover:text-red-900"><Edit2 size={18} /></button>
-                    <button onClick={() => deleteLaptop(laptop.id)} title="Delete Laptop" className="hover:text-red-900"><Trash2 size={18} /></button>
+                  <td className="px-6 py-4 flex items-center justify-end space-x-2 text-slate-400">
+                    <button onClick={() => openEditModal(laptop)} title="Edit Laptop" className="flex items-center px-2 py-1 text-xs font-medium rounded hover:bg-slate-100 text-slate-600 hover:text-red-900 transition-colors">
+                      <Edit2 size={14} className="mr-1.5" /> Edit
+                    </button>
+                    <button onClick={() => deleteLaptop(laptop.id)} title="Delete Laptop" className="flex items-center px-2 py-1 text-xs font-medium rounded hover:bg-slate-100 text-slate-600 hover:text-red-900 transition-colors">
+                      <Trash2 size={14} className="mr-1.5" /> Delete
+                    </button>
                   </td>
                 )}
               </tr>
@@ -174,46 +174,30 @@ const Laptops = () => {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-slate-800 mb-4">{editingLaptop ? 'Edit Laptop' : 'Add New Laptop'}</h3>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Asset Number</label>
-                  <input {...register('assetNumber', { required: true })} className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Laptop Barcode <span className="text-red-500">*</span></label>
+                  <input {...register('assetNumber', { required: true })} placeholder="Scan or enter barcode" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Laptop Name <span className="text-red-500">*</span></label>
+                  <input {...register('name', { required: true })} placeholder="e.g. LIRC Laptop 01" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Serial Number</label>
-                  <input {...register('serialNumber', { required: true })} className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
+                  <input {...register('serialNumber')} placeholder="Optional" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Brand</label>
-                  <input {...register('brand', { required: true })} className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
+                  <input {...register('brand')} placeholder="e.g. Dell (Optional)" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Model</label>
-                  <input {...register('model', { required: true })} className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Processor</label>
-                  <input {...register('processor', { required: true })} placeholder="e.g. Intel Core i5" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">RAM</label>
-                  <input {...register('ram', { required: true })} placeholder="e.g. 8GB" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Storage</label>
-                  <input {...register('storage', { required: true })} placeholder="e.g. 256GB SSD" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Model / Unit</label>
+                  <input {...register('model')} placeholder="e.g. Latitude 3420 (Optional)" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Operating System</label>
-                  <input {...register('operatingSystem', { required: true })} placeholder="e.g. Windows 11" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
-                  <input {...register('location', { required: true })} placeholder="e.g. Library Main Desk" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Purchase Date</label>
-                  <input type="date" {...register('purchaseDate', { required: true })} className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
+                  <input {...register('operatingSystem')} placeholder="e.g. Windows 11 (Optional)" className="w-full px-3 py-2 border rounded-lg focus:ring-red-900 focus:border-red-900" />
                 </div>
               </div>
               <div className="flex justify-end space-x-3 mt-6">

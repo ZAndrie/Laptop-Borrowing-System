@@ -24,7 +24,13 @@ const Register = () => {
         return;
       }
       await api.post('/auth/register', data);
-      setSuccessMsg('Registration successful! Please wait for a Librarian to approve your account.');
+      
+      if (data.role === 'LIBRARIAN') {
+        setSuccessMsg('Registration successful! You can now log in.');
+      } else {
+        setSuccessMsg('Registration successful! Please wait for a Librarian to approve your account.');
+      }
+      
       setTimeout(() => navigate('/login'), 4000);
     } catch (err) {
       setErrorMsg(err.response?.data?.error || 'Failed to register');
@@ -33,7 +39,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="w-full max-w-lg p-8 space-y-6 bg-white rounded-2xl shadow-xl">
+      <div className="w-full max-w-2xl p-8 space-y-6 bg-white rounded-2xl shadow-xl">
         <div className="text-center">
           <img src="/logo.png" alt="LIRC Logo" className="w-24 h-24 mx-auto mb-4 object-contain" />
           <h2 className="text-3xl font-bold text-slate-900">Create Account</h2>
@@ -83,18 +89,35 @@ const Register = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Email Address</label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-slate-400" />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Username</label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-slate-400" />
+                </div>
+                <input
+                  type="text"
+                  {...register('username', { required: 'Required' })}
+                  className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-red-900 focus:border-red-900 sm:text-sm"
+                  placeholder="juandelacruz"
+                />
               </div>
-              <input
-                type="email"
-                {...register('email', { required: 'Required' })}
-                className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-red-900 focus:border-red-900 sm:text-sm"
-                placeholder="juan@library.com"
-              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Email Address</label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-slate-400" />
+                </div>
+                <input
+                  type="email"
+                  {...register('email', { required: 'Required' })}
+                  className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-red-900 focus:border-red-900 sm:text-sm"
+                  placeholder="juan@library.com"
+                />
+              </div>
             </div>
           </div>
 

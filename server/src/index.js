@@ -18,6 +18,7 @@ app.use('/api/staff', require('./routes/staff.routes'));
 app.use('/api/laptops', require('./routes/laptop.routes'));
 app.use('/api/borrowers', require('./routes/borrower.routes'));
 app.use('/api/transactions', require('./routes/transaction.routes'));
+app.use('/api/dashboard', require('./routes/dashboard.routes'));
 
 // Basic Route
 app.get('/', (req, res) => {

@@ -36,6 +36,7 @@ enum TransactionStatus {
 
 model User {
   id        String   @id @default(uuid())
+  username  String   @unique @default(cuid())
   email     String   @unique
   password  String
   firstName String
@@ -69,17 +70,18 @@ model Borrower {
 model Laptop {
   id               String          @id @default(uuid())
   assetNumber      String          @unique
-  serialNumber     String          @unique
-  brand            String
-  model            String
-  processor        String
-  ram              String
-  storage          String
-  operatingSystem  String
-  purchaseDate     DateTime
+  name             String          @default("Unnamed Laptop")
+  serialNumber     String?         @unique
+  brand            String?
+  model            String?
+  processor        String?
+  ram              String?
+  storage          String?
+  operatingSystem  String?
+  purchaseDate     DateTime?
   condition        LaptopCondition @default(GOOD)
   status           LaptopStatus    @default(AVAILABLE)
-  location         String
+  location         String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 

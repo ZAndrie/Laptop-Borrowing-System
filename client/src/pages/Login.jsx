@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Laptop, Lock, Mail } from 'lucide-react';
+import { Laptop, Lock, Mail, User } from 'lucide-react';
 
 const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -13,7 +13,7 @@ const Login = () => {
   const onSubmit = async (data) => {
     try {
       setErrorMsg('');
-      await login(data.email, data.password);
+      await login(data.identifier, data.password);
       navigate('/dashboard');
     } catch (err) {
       setErrorMsg(err.response?.data?.error || 'Failed to login');
@@ -37,19 +37,19 @@ const Login = () => {
           )}
           
           <div>
-            <label className="block text-sm font-medium text-slate-700">Email Address</label>
+            <label className="block text-sm font-medium text-slate-700">Username or Email</label>
             <div className="mt-1 relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-slate-400" />
+                <User className="h-5 w-5 text-slate-400" />
               </div>
               <input
-                type="email"
-                {...register('email', { required: 'Email is required' })}
+                type="text"
+                {...register('identifier', { required: 'Username or Email is required' })}
                 className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-red-900 focus:border-red-900 sm:text-sm"
-                placeholder="admin@library.com"
+                placeholder="admin or admin@library.com"
               />
             </div>
-            {errors.email && <p className="mt-1 text-sm text-red-900">{errors.email.message}</p>}
+            {errors.identifier && <p className="mt-1 text-sm text-red-900">{errors.identifier.message}</p>}
           </div>
 
           <div>

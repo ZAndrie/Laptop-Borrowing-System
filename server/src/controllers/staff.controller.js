@@ -6,6 +6,7 @@ const getAllStaff = async (req, res) => {
     const staff = await prisma.user.findMany({
       select: {
         id: true,
+        username: true,
         email: true,
         firstName: true,
         lastName: true,
@@ -25,18 +26,26 @@ const getAllStaff = async (req, res) => {
 // Create a new staff account
 const createStaff = async (req, res) => {
   try {
-    const { email, password, firstName, lastName, role } = req.body;
+    const { username, email, password, firstName, lastName, role } = req.body;
     
-    // Check if email exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    // Check if email or username exists
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { username }
+        ]
+      }
+    });
     if (existingUser) {
-      return res.status(400).json({ error: 'Email already in use' });
+      return res.status(400).json({ error: 'Email or Username already in use' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user.create({
       data: {
+        username,
         email,
         password: hashedPassword,
         firstName,
@@ -45,6 +54,7 @@ const createStaff = async (req, res) => {
       },
       select: {
         id: true,
+        username: true,
         email: true,
         firstName: true,
         lastName: true,

@@ -17,15 +17,17 @@ const getAllLaptops = async (req, res) => {
 const addLaptop = async (req, res) => {
   try {
     const {
-      assetNumber, serialNumber, brand, model, processor, ram,
+      assetNumber, name, serialNumber, brand, model, processor, ram,
       storage, operatingSystem, purchaseDate, condition, status, location
     } = req.body;
+
+    const finalSerialNumber = serialNumber?.trim() || null;
 
     const existingLaptop = await prisma.laptop.findFirst({
       where: {
         OR: [
           { assetNumber },
-          { serialNumber }
+          ...(finalSerialNumber ? [{ serialNumber: finalSerialNumber }] : [])
         ]
       }
     });
@@ -37,17 +39,13 @@ const addLaptop = async (req, res) => {
     const newLaptop = await prisma.laptop.create({
       data: {
         assetNumber,
-        serialNumber,
-        brand,
-        model,
-        processor,
-        ram,
-        storage,
-        operatingSystem,
-        purchaseDate: new Date(purchaseDate),
+        name,
+        serialNumber: finalSerialNumber,
+        brand: brand?.trim() || null,
+        model: model?.trim() || null,
+        operatingSystem: operatingSystem?.trim() || null,
         condition: condition || 'GOOD',
         status: status || 'AVAILABLE',
-        location
       }
     });
 
@@ -71,25 +69,23 @@ const updateLaptop = async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      assetNumber, serialNumber, brand, model, processor, ram,
+      assetNumber, name, serialNumber, brand, model, processor, ram,
       storage, operatingSystem, purchaseDate, condition, status, location
     } = req.body;
+
+    const finalSerialNumber = serialNumber?.trim() || null;
 
     const updatedLaptop = await prisma.laptop.update({
       where: { id },
       data: {
         assetNumber,
-        serialNumber,
-        brand,
-        model,
-        processor,
-        ram,
-        storage,
-        operatingSystem,
-        purchaseDate: purchaseDate ? new Date(purchaseDate) : undefined,
+        name,
+        serialNumber: finalSerialNumber,
+        brand: brand?.trim() || null,
+        model: model?.trim() || null,
+        operatingSystem: operatingSystem?.trim() || null,
         condition,
         status,
-        location
       }
     });
 

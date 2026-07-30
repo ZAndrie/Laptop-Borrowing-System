@@ -4,18 +4,23 @@ const prisma = require('../utils/db');
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { identifier, password } = req.body;
     
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    if (!identifier || !password) {
+      return res.status(400).json({ error: 'Username/Email and password are required' });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: identifier },
+          { username: identifier }
+        ]
+      }
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     if (!user.isActive) {
@@ -47,6 +52,7 @@ const login = async (req, res) => {
       token,
       user: {
         id: user.id,
+        username: user.username,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -65,6 +71,7 @@ const getProfile = async (req, res) => {
       where: { id: req.user.id },
       select: {
         id: true,
+        username: true,
         email: true,
         firstName: true,
         lastName: true,
@@ -87,27 +94,35 @@ const getProfile = async (req, res) => {
 
 const registerUser = async (req, res) => {
   try {
-    const { email, password, firstName, lastName, role } = req.body;
+    const { username, email, password, firstName, lastName, role } = req.body;
     
-    if (!email || !password || !firstName || !lastName || !role) {
+    if (!username || !email || !password || !firstName || !lastName || !role) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { username }
+        ]
+      }
+    });
     if (existingUser) {
-      return res.status(400).json({ error: 'Email already exists' });
+      return res.status(400).json({ error: 'Email or Username already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user.create({
       data: {
+        username,
         email,
         password: hashedPassword,
         firstName,
         lastName,
         role,
-        isActive: (await prisma.user.count()) === 0, // Only the first user is auto-active
+        isActive: role === 'LIBRARIAN',
       },
     });
 
